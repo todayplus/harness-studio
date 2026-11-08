@@ -3,6 +3,7 @@ const VERSION = 'hs-__VERSION__';
 const ASSETS = [
   './',
   './index.html',
+  './guide.html',
   './manifest.webmanifest',
   './assets/icon-192.png',
   './assets/icon-512.png',

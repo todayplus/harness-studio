@@ -35,6 +35,11 @@ gsk audio_generation "$(cat audio/scripts/c01.txt)" -m elevenlabs/v4-tts -p '{"s
 | `F` | 전체화면 |
 | `Esc` | 나가기 |
 
+## 사용 가이드
+
+`guide.html` — 용도, 화면별 기능, 발표자 모드 단축키, 오디오, 배포, 콘텐츠 수정, FAQ를 담은 단일 파일 문서.
+앱의 **Reference → 데이터** 섹션에서도 열 수 있습니다.
+
 ## 앱으로 설치
 
 - **Android / 데스크톱(Chrome·Edge)**: 주소창 오른쪽 설치 아이콘 또는 상단 **앱 설치** 버튼

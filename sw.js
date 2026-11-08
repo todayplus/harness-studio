@@ -1,8 +1,9 @@
 /* Harness Studio service worker — offline shell */
-const VERSION = 'hs-4e570e8b77';
+const VERSION = 'hs-f89a4e3eb0';
 const ASSETS = [
   './',
   './index.html',
+  './guide.html',
   './manifest.webmanifest',
   './assets/icon-192.png',
   './assets/icon-512.png',

@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Harness Studio 사용 가이드</title>
+<meta name="description" content="Harness Studio 웹앱의 용도, 기능, 사용 방법을 정리한 가이드.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#EDEAE1; --surface:#F7F5EF; --surface-2:#F1EEE5;
+  --ink:#16211D; --ink-soft:#3A4741; --muted:#6B7871;
+  --line:#D8D2C3; --line-2:#C4BDAC;
+  --accent:#B4552A; --accent-ink:#8E3F1C; --accent-soft:#EADACA;
+  --sage:#6F8B7C; --ok:#4F7A5E;
+  --mono:'IBM Plex Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+  --sans:'IBM Plex Sans KR','Pretendard',-apple-system,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;
+  --shadow:0 1px 2px rgba(22,33,29,.05),0 14px 34px -20px rgba(22,33,29,.34);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:24px}
+body{
+  margin:0;background:var(--bg);color:var(--ink);
+  font-family:var(--sans);font-size:15px;line-height:1.78;letter-spacing:-.008em;
+  -webkit-font-smoothing:antialiased;
+}
+body::before{
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+  background-image:linear-gradient(rgba(22,33,29,.026) 1px,transparent 1px);
+  background-size:100% 29px;
+}
+::selection{background:var(--accent);color:#fff}
+a{color:var(--accent-ink);text-decoration:none;border-bottom:1px solid rgba(180,85,42,.32)}
+a:hover{border-bottom-color:var(--accent)}
+code{font-family:var(--mono);font-size:.88em;background:var(--surface-2);padding:1px 5px;border-radius:2px;border:1px solid var(--line)}
+.wrap{position:relative;z-index:1;display:grid;grid-template-columns:236px minmax(0,1fr);gap:0;max-width:1180px;margin:0 auto}
+@media (max-width:960px){.wrap{grid-template-columns:1fr}}
+
+/* ---- toc ---- */
+.toc{
+  position:sticky;top:0;align-self:start;height:100vh;overflow-y:auto;
+  padding:34px 22px 60px 26px;border-right:1px solid var(--line);
+}
+@media (max-width:960px){
+  .toc{position:static;height:auto;border-right:0;border-bottom:1px solid var(--line);padding:24px 20px}
+  .toc ol{columns:2;column-gap:18px}
+}
+.toc-k{font-family:var(--mono);font-size:9.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-bottom:14px}
+.toc ol{list-style:none;margin:0;padding:0;counter-reset:n}
+.toc li{counter-increment:n;margin-bottom:2px;break-inside:avoid}
+.toc a{
+  display:flex;gap:9px;padding:6px 8px;border-radius:2px;border:0;
+  font-size:12.6px;color:var(--ink-soft);line-height:1.45;
+}
+.toc a::before{
+  content:counter(n,decimal-leading-zero);font-family:var(--mono);font-size:9.5px;
+  color:var(--muted);padding-top:2px;flex:0 0 16px;
+}
+.toc a:hover{background:var(--surface-2);color:var(--ink)}
+.toc-foot{margin-top:22px;padding-top:16px;border-top:1px solid var(--line);font-family:var(--mono);font-size:10px;color:var(--muted);line-height:1.9}
+
+/* ---- doc ---- */
+.doc{padding:0 clamp(20px,4vw,56px) 100px;max-width:860px}
+header.cover{padding:56px 0 34px;border-bottom:1px solid var(--line)}
+.badge-row{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:22px}
+.badge{
+  font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;
+  padding:4px 9px;border:1px solid var(--line-2);border-radius:2px;color:var(--muted);
+}
+.badge.on{border-color:var(--accent);color:var(--accent-ink);background:var(--accent-soft)}
+h1{
+  font-size:clamp(30px,4.4vw,44px);line-height:1.2;letter-spacing:-.035em;
+  margin:0 0 16px;font-weight:700;text-wrap:balance;
+}
+.lede{font-size:16.5px;line-height:1.8;color:var(--ink-soft);font-weight:300;max-width:58ch;margin:0}
+@media (min-width:600px){.lede{font-size:17px}}
+
+.facts{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);margin-top:30px}
+@media (max-width:760px){.facts{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.fact{background:var(--surface);padding:14px 15px}
+.fact b{display:block;font-family:var(--mono);font-size:21px;font-weight:600;letter-spacing:-.03em;line-height:1.1}
+.fact span{display:block;font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-top:5px}
+
+section{padding:44px 0 6px;border-top:1px solid var(--line)}
+section:first-of-type{border-top:0}
+h2{
+  display:flex;gap:14px;align-items:baseline;margin:0 0 18px;
+  font-size:clamp(21px,2.6vw,26px);letter-spacing:-.028em;line-height:1.3;font-weight:700;
+}
+h2 .n{font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--accent);font-weight:500;flex:0 0 auto}
+h3{margin:30px 0 10px;font-size:15.5px;font-weight:600;letter-spacing:-.012em}
+h3:first-of-type{margin-top:8px}
+p{margin:0 0 14px;color:var(--ink-soft)}
+p strong{color:var(--ink);font-weight:600}
+ul,ol{margin:0 0 16px;padding-left:20px;color:var(--ink-soft)}
+li{margin-bottom:7px}
+li::marker{color:var(--line-2)}
+.small{font-size:13px;color:var(--muted)}
+
+/* callout */
+.note{
+  margin:22px 0;padding:16px 18px;background:var(--surface);border:1px solid var(--line);
+  border-left:2px solid var(--sage);border-radius:2px;
+}
+.note .k{display:block;font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--sage);margin-bottom:6px}
+.note p{margin:0;font-size:14px}
+.note.warn{border-left-color:var(--accent)}
+.note.warn .k{color:var(--accent-ink)}
+
+/* tables */
+.tablewrap{overflow-x:auto;margin:18px 0 22px;border:1px solid var(--line);border-radius:2px;background:var(--surface)}
+table{width:100%;border-collapse:collapse;font-size:13.2px;min-width:480px}
+th,td{text-align:left;padding:10px 13px;vertical-align:top;border-bottom:1px solid var(--line)}
+tr:last-child td{border-bottom:0}
+th{
+  font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--muted);font-weight:500;background:var(--surface-2);white-space:nowrap;
+}
+td:first-child{color:var(--ink);font-weight:500;white-space:nowrap}
+td code{white-space:nowrap}
+
+/* steps */
+.steps{list-style:none;margin:18px 0;padding:0;counter-reset:s}
+.steps li{
+  counter-increment:s;position:relative;padding:0 0 18px 42px;margin:0;
+  border-left:1px solid var(--line);margin-left:12px;
+}
+.steps li:last-child{border-left-color:transparent;padding-bottom:0}
+.steps li::before{
+  content:counter(s,decimal-leading-zero);position:absolute;left:-13px;top:-1px;
+  width:25px;height:25px;background:var(--surface);border:1px solid var(--line-2);
+  border-radius:50%;display:grid;place-items:center;
+  font-family:var(--mono);font-size:9.5px;color:var(--accent-ink);
+}
+.steps > li > b{display:block;font-size:14px;margin-bottom:3px;color:var(--ink)}
+.steps p b,.steps > li > p b{display:inline;font-size:inherit;margin:0}
+.steps p{margin:0;font-size:13.6px}
+
+/* feature blocks */
+.feature{border:1px solid var(--line);background:var(--surface);border-radius:2px;margin:18px 0;overflow:hidden}
+.feature-h{display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--line);background:var(--surface-2)}
+.feature-h .tag{font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent-ink)}
+.feature-h b{font-size:14px;letter-spacing:-.01em}
+.feature-b{padding:15px 16px 4px}
+.feature-b p:last-child{margin-bottom:12px}
+.feature-b ul{margin-bottom:10px}
+
+/* kbd */
+kbd{
+  display:inline-block;font-family:var(--mono);font-size:10.5px;line-height:1;
+  padding:4px 6px;background:var(--surface);border:1px solid var(--line-2);
+  border-bottom-width:2px;border-radius:3px;color:var(--ink);white-space:nowrap;
+}
+
+/* figure */
+figure{margin:26px 0;border:1px solid var(--line);background:var(--surface);border-radius:2px;padding:20px 18px 12px;overflow:hidden}
+figure svg{display:block;width:100%;height:auto}
+figcaption{font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:.04em;margin-top:10px;text-align:center}
+
+.split{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:18px 0}
+@media (max-width:640px){.split{grid-template-columns:1fr}}
+.mini{border:1px solid var(--line);background:var(--surface);padding:14px 15px;border-radius:2px}
+.mini .k{font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent-ink);margin-bottom:6px}
+.mini b{display:block;font-size:13.8px;margin-bottom:4px}
+.mini p{margin:0;font-size:12.8px;line-height:1.7;color:var(--muted)}
+
+footer{margin-top:52px;padding-top:22px;border-top:1px solid var(--line);font-family:var(--mono);font-size:10.5px;color:var(--muted);line-height:2}
+
+@media print{
+  body{background:#fff}
+  body::before,.toc{display:none}
+  .wrap{display:block;max-width:none}
+  .doc{max-width:none;padding:0}
+  section{break-inside:avoid;border-top:1px solid #ccc}
+  a{color:#000;border:0}
+  .feature,.note,figure,table{break-inside:avoid}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<aside class="toc" aria-label="목차">
+  <div class="toc-k">Contents</div>
+  <ol>
+    <li><a href="#s1">이 앱은 무엇인가</a></li>
+    <li><a href="#s2">5분 안에 시작하기</a></li>
+    <li><a href="#s3">화면 구성 한눈에 보기</a></li>
+    <li><a href="#s4">Learn — 15개 챕터</a></li>
+    <li><a href="#s5">Practice — 카드와 시나리오</a></li>
+    <li><a href="#s6">Build — 하네스 조립</a></li>
+    <li><a href="#s7">Diagnose — 성숙도 진단</a></li>
+    <li><a href="#s8">Reference — 부록</a></li>
+    <li><a href="#s9">발표자 모드</a></li>
+    <li><a href="#s10">오디오 요약</a></li>
+    <li><a href="#s11">데이터·오프라인·설치</a></li>
+    <li><a href="#s12">배포하기</a></li>
+    <li><a href="#s13">콘텐츠 수정하기</a></li>
+    <li><a href="#s14">문제 해결 · FAQ</a></li>
+  </ol>
+  <div class="toc-foot">
+    Harness Studio Guide<br>
+    v2.2 · 2026-11-08
+  </div>
+</aside>
+
+<main class="doc">
+
+<header class="cover">
+  <div class="badge-row">
+    <span class="badge on">User Guide</span>
+    <span class="badge">PWA</span>
+    <span class="badge">Offline</span>
+    <span class="badge">v2.2</span>
+  </div>
+  <h1>Harness Studio<br>사용 가이드</h1>
+  <p class="lede">AI 에이전트를 <b>팀의 엔지니어링 시스템</b>으로 얹기 위한 학습·설계 앱입니다. 읽고, 확인하고, 조립하고, 진단하는 네 단계를 한 화면 안에서 끝냅니다. 이 문서는 그 사용법을 처음부터 끝까지 설명합니다.</p>
+  <div class="facts">
+    <div class="fact"><b>15</b><span>챕터</span></div>
+    <div class="fact"><b>30</b><span>퀴즈</span></div>
+    <div class="fact"><b>33</b><span>플래시카드</span></div>
+    <div class="fact"><b>8</b><span>시나리오</span></div>
+    <div class="fact"><b>10</b><span>산출물 템플릿</span></div>
+    <div class="fact"><b>26분</b><span>오디오</span></div>
+  </div>
+</header>
+
+<section id="s1">
+  <h2><span class="n">01</span>이 앱은 무엇인가</h2>
+  <p>Harness Studio는 코딩 에이전트(Claude Code, Codex, Cursor 등)를 <strong>개인의 터미널 습관</strong>에서 <strong>조직의 운영 체계</strong>로 옮기는 과정을 다루는 학습·설계 도구입니다. 용어 하나로 줄이면 <strong>하네스(harness)</strong> — 모델이 일하는 환경 전체, 즉 문맥·기억·도구·권한·검증·배포·정책을 설계하는 일입니다.</p>
+
+  <h3>왜 이런 앱이 필요한가</h3>
+  <p>데모에서는 잘하던 에이전트가 실제 업무에서 흔들리는 이유는 대개 모델이 아니라 환경입니다. 세션이 바뀌면 맥락이 사라지고, 무인 실행에서는 승인해 줄 사람이 없고, 팀마다 설정이 갈라집니다. 이 앱은 그 문제를 <strong>진단 → 학습 → 조립 → 산출물</strong> 순서로 좁혀 들어갑니다.</p>
+
+  <h3>누구를 위한 앱인가</h3>
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th>대상</th><th>이 앱에서 하는 일</th></tr></thead>
+      <tbody>
+        <tr><td>개발자</td><td>챕터로 개념을 잡고, <code>CLAUDE.md</code>·훅·CI 워크플로 템플릿을 바로 저장소에 커밋</td></tr>
+        <tr><td>팀 리드 · CTO</td><td>성숙도 진단으로 현재 위치를 확인하고, 3계층 하네스 청사진으로 도입 범위 합의</td></tr>
+        <tr><td>플랫폼 · DevEx</td><td>관리형 설정·마켓플레이스·감사 정책의 경계를 설계</td></tr>
+        <tr><td>강사 · 워크숍 진행자</td><td>발표자 모드로 90분 워크숍을 그대로 진행</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>세 가지 원칙</h3>
+  <ul>
+    <li><strong>대화가 아니라 저장소.</strong> 세션이 끊기면 대화는 사라집니다. 남는 것은 파일과 검사뿐입니다.</li>
+    <li><strong>문서는 확률, 훅은 결정.</strong> 반드시 지켜야 하는 규칙은 실행 단계로 옮깁니다.</li>
+    <li><strong>측정 없는 개선은 추측.</strong> 바꾸기 전과 후를 같은 기준으로 비교합니다.</li>
+  </ul>
+
+  <div class="note">
+    <span class="k">앱이 하지 않는 일</span>
+    <p>이 앱은 에이전트를 대신 실행하지 않습니다. 코드를 생성하거나 저장소에 직접 커밋하지도 않습니다. <b>설계와 학습</b>을 담당하고, 실제 실행은 여러분의 Claude Code·CI가 맡습니다. 생성된 파일은 복사하거나 ZIP으로 내려받아 직접 커밋합니다.</p>
+  </div>
+</section>
+
+<section id="s2">
+  <h2><span class="n">02</span>5분 안에 시작하기</h2>
+  <ol class="steps">
+    <li><b>앱을 엽니다</b><p>배포된 주소로 접속하거나, 내려받은 폴더에서 <code>python3 -m http.server 8080</code> 후 <code>localhost:8080</code>을 엽니다. <b>파일을 더블클릭해 <code>file://</code>로 열면 오디오와 오프라인 기능이 동작하지 않습니다.</b></p></li>
+    <li><b>진단부터 합니다</b><p>상단 <b>Diagnose</b>에서 10문항을 0–2로 표시합니다. 1분이면 끝나고, 지금 어디를 먼저 손대야 하는지 3개 항목이 나옵니다.</p></li>
+    <li><b>추천받은 챕터를 읽습니다</b><p><b>Learn</b>에서 해당 챕터로 이동합니다. 챕터당 6–8분, 상단 오디오 버튼을 누르면 2분 요약으로 대체할 수 있습니다.</p></li>
+    <li><b>청사진을 만듭니다</b><p><b>Build</b>에서 4문항에 답하고 <b>선택 항목 ZIP</b>을 내려받습니다. <code>CLAUDE.md</code>와 <code>limits.yaml</code>만 먼저 커밋해도 첫 하네스가 됩니다.</p></li>
+    <li><b>설치해 둡니다</b><p>모바일은 <b>홈 화면에 추가</b>, 데스크톱은 주소창의 설치 아이콘. 이후에는 오프라인에서도 전체 콘텐츠가 열립니다.</p></li>
+  </ol>
+
+  <div class="note warn">
+    <span class="k">처음 온다면 이 순서만</span>
+    <p>진단 → Learn 1·3·6장(루프 · 저장소 · 훅) → Build ZIP → 커밋. 나머지는 필요할 때 꺼내 보는 참고서로 쓰시면 됩니다.</p>
+  </div>
+</section>
+
+<section id="s3">
+  <h2><span class="n">03</span>화면 구성 한눈에 보기</h2>
+  <p>상단 탭 5개가 앱의 전부입니다. 각 탭은 <b>읽기 → 연습 → 설계 → 측정 → 참고</b>의 한 단계씩 맡습니다.</p>
+
+  <figure>
+    <svg viewBox="0 0 720 216" role="img" aria-label="앱의 다섯 화면과 역할">
+      <defs>
+        <marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+          <path d="M0,0 L7,4 L0,8 z" fill="#BDB6A4"/>
+        </marker>
+        <marker id="ar2" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+          <path d="M0,0 L7,4 L0,8 z" fill="#B4552A"/>
+        </marker>
+      </defs>
+      <g font-family="IBM Plex Mono, monospace" font-size="9.5" fill="#6B7871" letter-spacing="1.2">
+        <text x="6" y="14">READ</text><text x="146" y="14">PRACTISE</text><text x="286" y="14">DESIGN</text><text x="426" y="14">MEASURE</text><text x="566" y="14">REFER</text>
+      </g>
+      <g>
+        <rect x="6" y="24" width="126" height="76" fill="#F7F5EF" stroke="#BDB6A4"/>
+        <rect x="146" y="24" width="126" height="76" fill="#F7F5EF" stroke="#BDB6A4"/>
+        <rect x="286" y="24" width="126" height="76" fill="#EADACA" stroke="#B4552A"/>
+        <rect x="426" y="24" width="126" height="76" fill="#F7F5EF" stroke="#BDB6A4"/>
+        <rect x="566" y="24" width="126" height="76" fill="#F7F5EF" stroke="#BDB6A4"/>
+      </g>
+      <g font-family="IBM Plex Sans KR, sans-serif" font-size="13.5" fill="#16211D" font-weight="600">
+        <text x="18" y="48">Learn</text><text x="158" y="48">Practice</text><text x="298" y="48">Build</text><text x="438" y="48">Diagnose</text><text x="578" y="48">Reference</text>
+      </g>
+      <g font-family="IBM Plex Sans KR, sans-serif" font-size="10.5" fill="#6B7871">
+        <text x="18" y="70">15개 챕터</text><text x="18" y="86">개념 · 퀴즈</text>
+        <text x="158" y="70">카드 33장</text><text x="158" y="86">시나리오 8개</text>
+        <text x="298" y="70">3계층 조립</text><text x="298" y="86">파일 10종 생성</text>
+        <text x="438" y="70">10문항 진단</text><text x="438" y="86">L0–L4 판정</text>
+        <text x="578" y="70">실패 사례·치트</text><text x="578" y="86">오디오 15편</text>
+      </g>
+      <g stroke="#BDB6A4" stroke-width="1" fill="none" marker-end="url(#ar)">
+        <path d="M134 62 H142"/><path d="M274 62 H282"/><path d="M414 62 H422"/><path d="M554 62 H562"/>
+      </g>
+      <g stroke="#B4552A" stroke-width="1" stroke-dasharray="3 4" fill="none">
+        <path d="M489 102 V142 H78"/>
+        <path d="M78 142 V112" marker-end="url(#ar2)"/>
+      </g>
+      <text x="150" y="134" font-family="IBM Plex Mono, monospace" font-size="9.5" fill="#8E3F1C">낮은 점수 항목 → Learn으로 회귀</text>
+      <g font-family="IBM Plex Sans KR, sans-serif" font-size="11.5" fill="#3A4741">
+        <text x="6" y="182">① 진단이 가리킨 챕터를 읽고</text>
+        <text x="6" y="202">② 카드와 시나리오로 고정한 뒤</text>
+        <text x="380" y="182">③ 청사진과 파일을 만들고</text>
+        <text x="380" y="202">④ 점수로 위치를 다시 확인합니다</text>
+      </g>
+    </svg>
+    <figcaption>다섯 화면은 한 방향으로 흐르고, 진단 결과가 다시 학습으로 되돌아옵니다</figcaption>
+  </figure>
+
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th>위치</th><th>역할</th><th>모바일에서</th></tr></thead>
+      <tbody>
+        <tr><td>상단 바</td><td>탭 이동 · 챕터 검색 · 발표자 모드 · 앱 설치 · 테마 전환</td><td>탭은 하단 바로 이동</td></tr>
+        <tr><td>좌측 레일</td><td>PART 1–5 챕터 목록, 완료 표시(·), 진도 카운터, 연속 학습일</td><td>숨김 (탭으로 대체)</td></tr>
+        <tr><td>우측 레일</td><td>읽기 진행률, 현재 챕터 산출물, 메모, 단축키</td><td>숨김</td></tr>
+        <tr><td>본문</td><td>현재 탭의 내용</td><td>전체 폭</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section id="s4">
+  <h2><span class="n">04</span>Learn — 15개 챕터</h2>
+  <p>PART 1부터 5까지, <b>15개 챕터 · 51개 개념 블록 · 45개 체크 항목 · 30문항 퀴즈</b>로 구성됩니다. 챕터 하나는 같은 리듬으로 반복됩니다.</p>
+
+  <figure>
+    <svg viewBox="0 0 700 132" role="img" aria-label="챕터 한 편의 구성">
+      <g font-family="IBM Plex Mono, monospace" font-size="9" fill="#8E3F1C" letter-spacing="1">
+        <text x="8" y="16">01 HEAD</text><text x="176" y="16">02 BLOCKS</text><text x="344" y="16">03 ANALOGY</text><text x="512" y="16">04 CHECK</text>
+      </g>
+      <g fill="#F7F5EF" stroke="#BDB6A4">
+        <rect x="6" y="24" width="156" height="62"/><rect x="174" y="24" width="156" height="62"/>
+        <rect x="342" y="24" width="156" height="62"/><rect x="510" y="24" width="156" height="62"/>
+      </g>
+      <g font-family="IBM Plex Sans KR, sans-serif" font-size="11.5" fill="#16211D">
+        <text x="18" y="44">제목 · 리드 문단</text><text x="18" y="62">오디오 요약 카드</text>
+        <text x="186" y="44">개념 3–5개</text><text x="186" y="62">태그 + 본문</text>
+        <text x="354" y="44">일상 비유</text><text x="354" y="62">한 문단</text>
+        <text x="522" y="44">실무 체크 3개</text><text x="522" y="62">체크박스</text>
+      </g>
+      <g fill="#EADACA" stroke="#B4552A"><rect x="174" y="96" width="492" height="26"/></g>
+      <g font-family="IBM Plex Sans KR, sans-serif" font-size="11.5" fill="#8E3F1C">
+        <text x="186" y="113">05 CHECK YOURSELF — 퀴즈 2문항 (정답·오답 즉시 표시 + 해설)</text>
+      </g>
+      <g font-family="IBM Plex Mono, monospace" font-size="9" fill="#6B7871"><text x="6" y="113">NEXT →</text></g>
+    </svg>
+    <figcaption>표지 → 개념 → 비유 → 체크 → 퀴즈. 이 순서가 발표자 모드 슬라이드와 동일합니다</figcaption>
+  </figure>
+
+  <h3>읽는 방법</h3>
+  <ul>
+    <li><b>개념 블록</b>은 왼쪽에 태그(관찰·행동·검증·개입 등), 오른쪽에 설명이 붙습니다. 태그만 훑어도 구조가 잡힙니다.</li>
+    <li><b>일상 비유</b>는 개념을 자기 업무로 번역하는 구간입니다. 개발자가 아니어도 여기서 이해가 됩니다.</li>
+    <li><b>실무 체크</b>는 체크박스로 저장됩니다. 다 채우지 않아도 되고, 하나를 이번 주 할 일로 고르면 됩니다.</li>
+    <li><b>퀴즈</b>는 2문항입니다. 선택하면 정답이 초록, 내가 고른 오답이 주황으로 표시되고 해설이 열립니다. <b>퀴즈 다시 풀기</b>로 초기화할 수 있습니다.</li>
+  </ul>
+
+  <h3>이동과 기록</h3>
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th>동작</th><th>방법</th></tr></thead>
+      <tbody>
+        <tr><td>다음 · 이전 챕터</td><td><kbd>→</kbd> <kbd>←</kbd> 또는 본문 하단 <b>다음 →</b> 버튼</td></tr>
+        <tr><td>완료 표시</td><td><b>이 챕터 완료 표시</b> — 좌측 목록에 점이 찍히고 상단 진행률이 올라갑니다</td></tr>
+        <tr><td>챕터 검색</td><td>상단 검색창에 개념어 입력 (예: <code>훅</code>, <code>샌드박스</code>)</td></tr>
+        <tr><td>빠른 이동</td><td><kbd>⌘K</kbd> / <kbd>Ctrl K</kbd> 커맨드 팔레트에서 챕터·화면·동작 검색</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="note">
+    <span class="k">진행률 계산 방식</span>
+    <p>진행률은 <b>완료 표시한 챕터 수 ÷ 15</b>입니다. 체크리스트나 퀴즈 정답은 진행률에 영향을 주지 않고 별도로 저장됩니다.</p>
+  </div>
+</section>
+
+<section id="s5">
+  <h2><span class="n">05</span>Practice — 카드와 시나리오</h2>
+  <p>읽는 것과 꺼내 쓰는 것은 다릅니다. Practice는 개념을 <b>기억</b>하는 트랙과 판단을 <b>훈련</b>하는 트랙으로 나뉩니다. 상단의 두 버튼으로 전환합니다.</p>
+
+  <div class="feature">
+    <div class="feature-h"><span class="tag">Track A</span><b>플래시카드 33장</b></div>
+    <div class="feature-b">
+      <p>전 챕터의 핵심 용어를 모은 덱입니다. 카드를 클릭하거나 <kbd>Space</kbd>를 누르면 정의가 열립니다.</p>
+      <ul>
+        <li><b>알고 있음</b> — 암기로 분류. 덱에서 뒤로 밀려 다시 나오지 않습니다.</li>
+        <li><b>다시 보기</b> — 학습 필요로 분류. 다음 순회에서 앞쪽에 배치됩니다.</li>
+        <li>상단 진행 바: 회색(미확인) · 주황(학습 필요) · 초록(암기)</li>
+      </ul>
+      <p class="small">앱을 새로 열면 <b>미암기 카드가 먼저</b> 나오도록 자동 정렬됩니다. 5분이면 전체를 한 번 훑을 수 있습니다.</p>
+    </div>
+  </div>
+
+  <div class="feature">
+    <div class="feature-h"><span class="tag">Track B</span><b>시나리오 랩 8개</b></div>
+    <div class="feature-b">
+      <p>실제 사고 상황을 주고, 세 가지 대응 중 하나를 고르게 합니다. 정답 여부보다 <b>어느 계층에서 막혔는지</b>를 확인하는 것이 목적입니다.</p>
+      <p>예: <i>야간 의존성 업데이트가 테스트를 깨뜨렸다</i> — 에이전트가 실패한 테스트를 수정해 통과시켰다면?</p>
+      <ul>
+        <li>선택하면 즉시 판정과 해설, 그리고 <b>원칙 한 줄</b>이 표시됩니다.</li>
+        <li><b>다음 시나리오 →</b> 로 8개를 순서대로 진행합니다. 하단 점 표시로 진행 상황을 봅니다.</li>
+        <li><b>처음부터</b> 로 전체 판정을 초기화할 수 있습니다.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="note">
+    <span class="k">워크숍에서 쓰는 법</span>
+    <p>팀으로 진행할 때는 시나리오를 <b>소리 내어 읽고 30초 토론</b> 후 투표하게 하세요. 정답을 맞히는 것보다 "우리 팀은 어느 계층이 비어 있었나"를 말하게 하는 편이 효과가 큽니다.</p>
+  </div>
+</section>
+
+<section id="s6">
+  <h2><span class="n">06</span>Build — 하네스 조립</h2>
+  <p>네 가지 질문에 답하면 <b>조직 공통 · 프로젝트 · 개인</b> 3계층 하네스가 조립되고, 곧바로 커밋할 수 있는 파일 10종이 생성됩니다.</p>
+
+  <h3>질문 4개</h3>
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th>질문</th><th>결과에 미치는 영향</th></tr></thead>
+      <tbody>
+        <tr><td>Q1 규모</td><td>목표 수준(L1 개인 / L2 팀 / L3 조직)과 조직 계층의 두께. 100명 이상이면 조직 계층이 활성화됩니다.</td></tr>
+        <tr><td>Q2 자동화</td><td>테스트 게이트, 훅, CI 워크플로, 중단 조건의 포함 여부.</td></tr>
+        <tr><td>Q3 보안 민감도</td><td>샌드박스 정책, 감사 로그, 거부 목록의 강도. ‘높음’이면 감사 로그가 추가됩니다.</td></tr>
+        <tr><td>Q4 기존 자산</td><td>이미 있는 것에 따라 스킬·서브에이전트 항목을 중복 생성하지 않습니다.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>결과 읽는 법</h3>
+  <figure>
+    <svg viewBox="0 0 700 168" role="img" aria-label="삼계층 하네스 스택">
+      <g fill="#F7F5EF" stroke="#BDB6A4">
+        <rect x="8" y="10" width="470" height="40"/>
+        <rect x="8" y="58" width="470" height="40"/>
+        <rect x="8" y="106" width="470" height="40"/>
+      </g>
+      <g fill="#F7F5EF" stroke="#BDB6A4">
+        <rect x="8" y="10" width="470" height="40" fill="#F1EEE5"/>
+      </g>
+      <g font-family="IBM Plex Mono, monospace" font-size="8.5" fill="#6B7871" letter-spacing="1.1">
+        <text x="20" y="26">LAYER 03 · ORGANIZATION</text>
+        <text x="20" y="74">LAYER 02 · PROJECT</text>
+        <text x="20" y="122">LAYER 01 · PERSONAL</text>
+      </g>
+      <g font-family="IBM Plex Sans KR, sans-serif" font-size="12" fill="#16211D">
+        <text x="20" y="43">관리형 설정 · 마켓플레이스 · 감사</text>
+        <text x="20" y="91">CLAUDE.md · 훅 · 테스트 게이트 · 스킬</text>
+        <text x="20" y="139">개인 설정 · 개인 스킬 · 승인 습관</text>
+      </g>
+      <g fill="#B4552A"><rect x="476" y="10" width="2" height="40" opacity=".25"/><rect x="476" y="58" width="2" height="40"/><rect x="476" y="106" width="2" height="40"/></g>
+      <g font-family="IBM Plex Mono, monospace" font-size="9" fill="#8E3F1C">
+        <text x="494" y="34">고정 · 덮어쓸 수 없음</text>
+        <text x="494" y="82">저장소별 구체 규칙</text>
+        <text x="494" y="130">취향 · 정책은 못 덮음</text>
+      </g>
+      <g font-family="IBM Plex Sans KR, sans-serif" font-size="11" fill="#6B7871">
+        <text x="8" y="162">규모가 작으면 조직 계층은 꺼진 채로 유지됩니다 (최소 공통 규칙만)</text>
+      </g>
+    </svg>
+    <figcaption>레이어 스택 — 위로 갈수록 강제력이 높고, 아래로 갈수록 구체적입니다</figcaption>
+  </figure>
+
+  <p>오른쪽 아래에는 <b>파일 트리</b>와 <b>다음 할 일 3개</b>가 함께 나옵니다. 트리는 지금 설정에서 실제로 만들어져야 하는 구조이고, 다음 할 일은 그 구조를 채우는 순서입니다.</p>
+
+  <h3>시작 파일 10종</h3>
+  <p>목록에서 체크하면 오른쪽에 <b>실제 내용</b>이 미리보기로 나옵니다. 빈 템플릿이 아니라, Q1–Q4 답변이 반영된 파일입니다.</p>
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th>파일</th><th>용도</th></tr></thead>
+      <tbody>
+        <tr><td><code>CLAUDE.md</code></td><td>저장소 규칙 — 스택, 명령, 완료 기준, 금지 사항</td></tr>
+        <tr><td><code>.claude/settings.json</code></td><td>권한(allow/ask/deny)과 훅 연결. 보안 민감도에 따라 deny 목록이 달라집니다</td></tr>
+        <tr><td><code>.claude/skills/release/SKILL.md</code></td><td>릴리스 절차 스킬 — 사전 확인부터 배포까지 5단계</td></tr>
+        <tr><td><code>.claude/agents/explorer.md</code></td><td>탐색 전담 서브에이전트 — 코드 수정 금지, 요약 형식 지정</td></tr>
+        <tr><td><code>hooks/pre-commit-guard.sh</code></td><td>커밋 전 위험 명령 차단 훅 (force push, 시크릿 읽기, 파괴적 DB)</td></tr>
+        <tr><td><code>.github/workflows/agent.yml</code></td><td>무인 CI 워크플로 — PR 트리거, 검증 게이트, 타임아웃</td></tr>
+        <tr><td><code>harness/limits.yaml</code></td><td>예산·변경 범위 상한, 중단 조건, 사람 에스컬레이션 기준</td></tr>
+        <tr><td><code>docs/handoff.md</code></td><td>세션 인수인계 양식 — 상태, 시도, 실패 이유, 다음 할 일</td></tr>
+        <tr><td><code>managed-settings.json</code></td><td>조직 관리형 설정 — 프로젝트가 덮어쓸 수 없는 정책</td></tr>
+        <tr><td><code>CODEOWNERS</code></td><td>민감 경로 소유자 — 인프라·마이그레이션·정책 파일 리뷰 강제</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>내려받기</h3>
+  <ul>
+    <li><b>복사</b> — 청사진 마크다운을 클립보드로</li>
+    <li><b>.md 다운로드</b> — <code>harness-blueprint.md</code> 단일 파일</li>
+    <li><b>선택 항목 ZIP</b> — 체크한 파일 + 청사진을 폴더 구조 그대로 압축 (<code>harness-kit.zip</code>)</li>
+    <li><b>이 파일 복사</b> — 미리보기 중인 파일 하나만 복사</li>
+  </ul>
+
+  <div class="note warn">
+    <span class="k">커밋 순서</span>
+    <p><code>CLAUDE.md</code> → <code>harness/limits.yaml</code> → <code>hooks/pre-commit-guard.sh</code> 순서가 안전합니다. <code>agent.yml</code>과 <code>managed-settings.json</code>은 팀 합의가 끝난 뒤에 넣으세요. 설정만 먼저 들어가면 아무도 이유를 모르는 채로 유지됩니다.</p>
+  </div>
+</section>
+
+<section id="s7">
+  <h2><span class="n">07</span>Diagnose — 성숙도 진단</h2>
+  <p>10문항을 각각 <b>없음(0) · 부분(1) · 있음(2)</b>으로 표시합니다. 총점 20점 만점으로 다섯 단계 중 하나가 나옵니다.</p>
+
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th>점수</th><th>단계</th><th>의미</th></tr></thead>
+      <tbody>
+        <tr><td>0–3</td><td>L0 대화형 사용</td><td>개인이 대화로만 쓰는 단계. 규칙이 저장소에 없습니다</td></tr>
+        <tr><td>4–8</td><td>L1 개인 하네스</td><td>규칙 파일과 검사 명령이 한 사람 손에 정리됨</td></tr>
+        <tr><td>9–13</td><td>L2 팀 표준</td><td>스킬·훅·서브에이전트가 저장소에 있고 리뷰와 연결됨</td></tr>
+        <tr><td>14–17</td><td>L3 조직 거버넌스</td><td>관리형 설정·마켓플레이스·감사가 운영됨</td></tr>
+        <tr><td>18–20</td><td>L4 무인 운영</td><td>예산·중단 조건·평가 하네스로 무인 실행을 통제</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>점수 아래에는 <b>가장 낮은 항목 3개</b>가 다음 할 일로 제시됩니다. 이 앱은 점수를 올리는 것보다 <b>다음 한 걸음</b>을 정하는 데 목적이 있습니다.</p>
+
+  <div class="note">
+    <span class="k">팀으로 쓸 때</span>
+    <p>각자 진단한 뒤 항목별로 평균을 내보세요. 총점 평균보다 <b>편차가 큰 항목</b>이 실제 문제입니다. 어떤 팀은 훅을 쓰고 어떤 팀은 모른다면, 그건 도구 문제가 아니라 배포 문제입니다.</p>
+  </div>
+</section>
+
+<section id="s8">
+  <h2><span class="n">08</span>Reference — 부록</h2>
+  <p>다 읽은 뒤에도 계속 꺼내 보는 페이지입니다. 위에서 아래로 여섯 구역입니다.</p>
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th>구역</th><th>내용</th></tr></thead>
+      <tbody>
+        <tr><td>실패 사례 6</td><td>규칙 더미, 검증자 피고, 복사본 배포, 전사 동시 배포, 도구 도입 = 성과, 무한 재시도 — 각각 처방 포함</td></tr>
+        <tr><td>직군별 적용 6</td><td>백엔드·프론트엔드·데이터·기획·QA·DevOps가 가장 먼저 붙일 하네스</td></tr>
+        <tr><td>90분 워크숍</td><td>진단 10분 → 개념 20분 → 조립 25분 → 산출물 20분 → 시나리오 15분</td></tr>
+        <tr><td>한 장 치트시트 12</td><td>루프·개입·기억·훅·계층·배포·무인·중단·평가·보안·확대·측정</td></tr>
+        <tr><td>오디오 라이브러리</td><td>15편 목록과 재생시간, 개별 재생 버튼</td></tr>
+        <tr><td>데이터</td><td>학습 기록 JSON 내보내기/가져오기, 인쇄·PDF, 전체 초기화</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>기록 옮기기</h3>
+  <p><b>JSON 내보내기</b>는 진도·퀴즈·카드·시나리오·진단·설정을 한 파일로 저장합니다. 다른 기기나 브라우저에서 <b>가져오기</b>로 그대로 복원됩니다. 팀원에게 "내가 만든 진단 결과"를 보여줄 때도 이 파일을 쓰면 됩니다.</p>
+  <p><b>인쇄 · PDF</b>는 현재 화면을 인쇄용으로 정리합니다. 좌우 레일과 내비게이션이 빠지고 본문만 남습니다.</p>
+</section>
+
+<section id="s9">
+  <h2><span class="n">09</span>발표자 모드</h2>
+  <p>강의실·워크숍용 전체화면 발표 화면입니다. 챕터 덱과 워크숍 덱 두 가지가 있습니다.</p>
+
+  <div class="split">
+    <div class="mini">
+      <div class="k">Chapter Deck</div>
+      <b>챕터 발표 · 9장</b>
+      <p>표지 → 개념 슬라이드 → 비유 → 체크 → 퀴즈(정답 공개) → 한 줄 정리. 챕터 내용이 그대로 슬라이드가 됩니다.</p>
+    </div>
+    <div class="mini">
+      <div class="k">Workshop Deck</div>
+      <b>90분 워크숍 · 6장</b>
+      <p>구간마다 <b>카운트다운 타이머</b>가 돌고, 1분 남으면 경고색으로 바뀝니다. 각 구간에 "이 구간에서 할 일"이 붙습니다.</p>
+    </div>
+  </div>
+
+  <h3>여는 방법</h3>
+  <ul>
+    <li>상단 바의 <b>모니터 아이콘</b> → 현재 챕터 덱</li>
+    <li>챕터 하단 <b>이 챕터 발표하기</b></li>
+    <li>Practice 상단 카드 2개, Reference의 <b>발표 자료</b> 섹션</li>
+    <li>커맨드 팔레트(<kbd>⌘K</kbd>)에서도 실행 가능</li>
+  </ul>
+
+  <h3>단축키</h3>
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th>키</th><th>동작</th></tr></thead>
+      <tbody>
+        <tr><td><kbd>→</kbd> <kbd>Space</kbd> <kbd>Enter</kbd></td><td>다음 슬라이드 (슬라이드 더블클릭도 동일)</td></tr>
+        <tr><td><kbd>←</kbd> <kbd>Backspace</kbd></td><td>이전 슬라이드</td></tr>
+        <tr><td><kbd>N</kbd></td><td>발표자 노트 열기/닫기 — 이 슬라이드에서 무엇을 말할지</td></tr>
+        <tr><td><kbd>P</kbd></td><td>타이머 일시정지 / 재개</td></tr>
+        <tr><td><kbd>F</kbd></td><td>전체화면 전환</td></tr>
+        <tr><td><kbd>Home</kbd> <kbd>End</kbd></td><td>첫 슬라이드 / 마지막 슬라이드</td></tr>
+        <tr><td><kbd>Esc</kbd></td><td>발표 종료</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>퀴즈 슬라이드 운용</h3>
+  <p>퀴즈 슬라이드는 처음에 <b>정답이 가려진 상태</b>로 열립니다. 청중에게 묻고 토론을 받은 뒤 <b>슬라이드를 클릭</b>하거나 <kbd>Enter</kbd>를 누르면 정답과 해설이 나타납니다. 진행 바(하단 가로 막대)를 클릭하면 원하는 슬라이드로 바로 점프합니다.</p>
+
+  <div class="note">
+    <span class="k">두 화면으로 발표하려면</span>
+    <p>노트북을 프로젝터에 연결한 뒤 <kbd>F</kbd>로 전체화면을 켜세요. 노트(<kbd>N</kbd>)는 화면 오른쪽 아래에 겹쳐 뜨므로, 노트북 화면에서만 보고 싶다면 브라우저 창을 복제하지 말고 <b>확장 모드</b>로 두고 발표 화면을 프로젝터로 보내면 됩니다.</p>
+  </div>
+</section>
+
+<section id="s10">
+  <h2><span class="n">10</span>오디오 요약</h2>
+  <p>챕터마다 <b>1분 22초–2분 16초</b> 분량의 내레이션이 있고, 15편 합계 <b>25분 36초</b>입니다. 출퇴근이나 이동 중에 전체를 한 번 들을 수 있는 길이입니다.</p>
+
+  <h3>재생하는 세 가지 방법</h3>
+  <ul>
+    <li><b>챕터 상단 카드</b> — 재생 버튼을 누르면 즉시 시작</li>
+    <li><b>Reference → 오디오 라이브러리</b> — 15편 중 원하는 편만</li>
+    <li><b>하단 미니 플레이어</b> — 재생 중 화면을 이동해도 계속 재생됩니다</li>
+  </ul>
+
+  <h3>플레이어 조작</h3>
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th>버튼</th><th>동작</th></tr></thead>
+      <tbody>
+        <tr><td>▶ / ❚❚</td><td>재생 · 일시정지</td></tr>
+        <tr><td>◀◀ / ▶▶</td><td>이전 · 다음 챕터</td></tr>
+        <tr><td>시크바</td><td>원하는 위치로 이동</td></tr>
+        <tr><td>1.0×</td><td>속도 순환 — 1.0 → 1.25 → 1.5 → 0.8</td></tr>
+        <tr><td>×</td><td>플레이어 닫기 (재생 중지)</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>한 편이 끝나면 <b>다음 챕터가 자동으로 재생</b>됩니다. 15편을 이어 들으면 챕터 순서대로 전체 과정을 한 번 훑는 셈입니다.</p>
+
+  <div class="note">
+    <span class="k">오프라인</span>
+    <p>앱을 설치하면 mp3 15개(약 24MB)가 캐시되어 <b>네트워크 없이도 재생</b>됩니다. 설치 직후 한 번은 온라인 상태에서 앱을 열어 캐시가 채워질 시간을 주세요.</p>
+  </div>
+</section>
+
+<section id="s11">
+  <h2><span class="n">11</span>데이터 · 오프라인 · 설치</h2>
+
+  <h3>무엇이 저장되나</h3>
+  <p>모든 기록은 <b>이 브라우저의 localStorage</b>에 저장됩니다. 서버로 전송되지 않습니다.</p>
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th>항목</th><th>저장 내용</th></tr></thead>
+      <tbody>
+        <tr><td>진도</td><td>완료 표시한 챕터, 현재 챕터 위치</td></tr>
+        <tr><td>체크리스트</td><td>챕터별 실무 체크 3개</td></tr>
+        <tr><td>퀴즈</td><td>문항별 선택과 정답 여부</td></tr>
+        <tr><td>플래시카드</td><td>카드별 암기/학습 필요 분류</td></tr>
+        <tr><td>시나리오</td><td>8개 판정 결과</td></tr>
+        <tr><td>진단</td><td>10문항 응답</td></tr>
+        <tr><td>빌더</td><td>Q1–Q4 답변, 선택한 템플릿</td></tr>
+        <tr><td>환경</td><td>테마, 마지막 재생한 오디오, 연속 학습일</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>설치</h3>
+  <ol class="steps">
+    <li><b>Android · 데스크톱 (Chrome / Edge)</b><p>주소창 오른쪽의 설치 아이콘, 또는 앱 상단의 <b>앱 설치</b> 버튼을 누릅니다.</p></li>
+    <li><b>iPhone · iPad (Safari)</b><p>공유 버튼 → <b>홈 화면에 추가</b>. iOS는 자동 설치 배너가 없어 이 경로만 있습니다.</p></li>
+    <li><b>설치 후</b><p>독립 창으로 열리고, 오프라인에서도 전체 콘텐츠와 오디오가 동작합니다. 앱 아이콘 길게 누르면 카드·빌더·진단 바로가기가 나옵니다.</p></li>
+  </ol>
+
+  <div class="note warn">
+    <span class="k">기기 간 동기화는 없습니다</span>
+    <p>기록은 기기에 남습니다. 다른 기기로 옮기려면 <b>Reference → JSON 내보내기</b> 후 새 기기에서 <b>가져오기</b> 하세요. 브라우저 데이터를 삭제하면 기록도 사라집니다.</p>
+  </div>
+
+  <h3>테마</h3>
+  <p>상단의 해 아이콘으로 라이트/다크를 전환합니다. 선택은 저장되어 다음 방문에도 유지됩니다.</p>
+</section>
+
+<section id="s12">
+  <h2><span class="n">12</span>배포하기</h2>
+  <p>정적 사이트라 서버가 필요 없습니다. GitHub Pages를 권장합니다.</p>
+
+  <ol class="steps">
+    <li><b>저장소를 만듭니다</b><p>이름은 자유 (예: <code>harness-studio</code>). Public이면 무료로 Pages를 쓸 수 있습니다.</p></li>
+    <li><b>파일을 올립니다</b><p>ZIP을 풀어 전체를 푸시합니다. <code>index.html</code>, <code>manifest.webmanifest</code>, <code>sw.js</code>, <code>assets/</code>, <code>audio/</code>, <code>.github/workflows/pages.yml</code>이 모두 필요합니다.</p></li>
+    <li><b>Pages를 켭니다</b><p>저장소 <b>Settings → Pages → Source</b>에서 <b>GitHub Actions</b>를 선택합니다. 이후 <code>main</code>에 푸시할 때마다 자동 배포됩니다.</p></li>
+    <li><b>주소 확인</b><p><code>https://&lt;아이디&gt;.github.io/harness-studio/</code> — 첫 배포는 1–2분 걸립니다.</p></li>
+  </ol>
+
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th>명령</th><th>설명</th></tr></thead>
+      <tbody>
+        <tr><td><code>python3 build.py</code></td><td><code>src/*</code>를 <code>index.html</code>과 <code>harness-studio.html</code>로 인라인 빌드. 서비스 워커 버전도 갱신</td></tr>
+        <tr><td><code>python3 -m http.server 8080</code></td><td>로컬 확인. <b>서비스 워커와 오디오는 http(s)에서만 동작</b></td></tr>
+        <tr><td><code>unzip -t harness-kit.zip</code></td><td>내려받은 산출물 무결성 확인</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p><b>HTTPS가 필수</b>입니다. 서비스 워커와 설치 기능은 https 또는 localhost에서만 활성화됩니다. 사내 서버에 올린다면 인증서를 반드시 적용하세요.</p>
+
+  <p>단일 파일로 배포하고 싶다면 <code>harness-studio.html</code> 하나만 올려도 앱은 동작합니다. 다만 오디오·오프라인·설치 기능은 폴더 구조가 있어야 하므로 권장하지 않습니다.</p>
+</section>
+
+<section id="s13">
+  <h2><span class="n">13</span>콘텐츠 수정하기</h2>
+  <p>챕터·퀴즈·카드·시나리오는 모두 데이터 파일에 모여 있습니다. 코드를 건드리지 않고 문구를 고칠 수 있습니다.</p>
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th>파일</th><th>무엇이 들어 있나</th></tr></thead>
+      <tbody>
+        <tr><td><code>src/data.js</code></td><td>15개 챕터(개념·비유·체크·퀴즈·카드), 시나리오 8개, 템플릿 10종, 부록, 진단 문항, 오디오 길이</td></tr>
+        <tr><td><code>src/app.js</code></td><td>화면 렌더링, 플레이어, 발표자 모드, ZIP 생성, 저장 로직</td></tr>
+        <tr><td><code>src/styles.css</code></td><td>전체 디자인 토큰(색·타이포·간격)</td></tr>
+        <tr><td><code>index.template.html</code></td><td>화면 골격. 빌드 시 CSS/JS가 인라인됩니다</td></tr>
+        <tr><td><code>audio/scripts/*.txt</code></td><td>오디오 원고 15편. 이 텍스트가 내레이션의 원본입니다</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>챕터 하나 추가하기</h3>
+  <ol>
+    <li><code>src/data.js</code>의 <code>CHAPTERS</code> 배열에 객체를 추가합니다 (<code>id</code>, <code>part</code>, <code>short</code>, <code>title</code>, <code>lede</code>, <code>blocks</code>, <code>analogy</code>, <code>checks</code>, <code>artifacts</code>, <code>quiz</code>, <code>cards</code>).</li>
+    <li>내레이션을 추가하려면 <code>TAKEAWAYS</code>에 한 줄 정리를, <code>AUDIO_SECONDS</code>에 길이를 넣습니다.</li>
+    <li><code>python3 build.py</code> — 좌측 목록·진행률·발표자 덱이 자동으로 반영됩니다.</li>
+  </ol>
+
+  <div class="note">
+    <span class="k">빌드 산출물</span>
+    <p><code>index.html</code>과 <code>harness-studio.html</code>은 빌드 결과이므로 직접 고치지 마세요. 다음 빌드에서 덮어써집니다. 소스는 항상 <code>src/</code>입니다.</p>
+  </div>
+</section>
+
+<section id="s14">
+  <h2><span class="n">14</span>문제 해결 · FAQ</h2>
+
+  <h3>오디오가 재생되지 않습니다</h3>
+  <ul>
+    <li><code>file://</code>로 열었을 가능성이 높습니다. <code>python3 -m http.server</code>로 열거나 배포 주소를 쓰세요.</li>
+    <li><code>audio/</code> 폴더가 <code>index.html</code>과 같은 위치에 있는지 확인하세요.</li>
+    <li>설치 직후라면 캐시가 아직 비어 있을 수 있습니다. 온라인 상태에서 한 번 재생해 주세요.</li>
+  </ul>
+
+  <h3>앱 설치 버튼이 보이지 않습니다</h3>
+  <ul>
+    <li>iOS Safari는 설치 배너를 지원하지 않습니다. <b>공유 → 홈 화면에 추가</b>를 사용하세요.</li>
+    <li>이미 설치했거나 <code>localhost</code>가 아닌 http 주소라면 설치가 비활성화됩니다. HTTPS인지 확인하세요.</li>
+  </ul>
+
+  <h3>기록이 사라졌습니다</h3>
+  <ul>
+    <li>브라우저 데이터 삭제, 시크릿 모드 종료, 기기 변경 시 사라집니다. 서버 저장이 없기 때문입니다.</li>
+    <li>정기적으로 <b>Reference → JSON 내보내기</b>로 백업하세요.</li>
+  </ul>
+
+  <h3>발표자 모드에서 글자가 작습니다</h3>
+  <p>전체화면(<kbd>F</kbd>)으로 진입하면 뷰포트가 커져 활자가 함께 커집니다. 프로젝터 해상도가 낮다면 브라우저 확대를 80% 정도로 낮춰 슬라이드가 잘리지 않게 하세요.</p>
+
+  <h3>진행률이 올라가지 않습니다</h3>
+  <p>진행률은 <b>완료 표시</b>만 셉니다. 체크리스트와 퀴즈는 별도로 저장되지만 진행률에는 포함되지 않습니다.</p>
+
+  <div class="note">
+    <span class="k">이 앱의 한계</span>
+    <p>서버가 없으므로 팀 단위 진도 취합·순위·대시보드는 지원하지 않습니다. 필요하다면 Supabase 같은 무료 백엔드를 붙여 진도 테이블만 동기화하는 방식이 가장 작은 확장입니다.</p>
+  </div>
+</section>
+
+<footer>
+  Harness Studio 사용 가이드 · v2.2 · 2026-11-08<br>
+  앱 버전 2.2 — 15 챕터 · 퀴즈 30 · 카드 33 · 시나리오 8 · 템플릿 10 · 오디오 15편<br>
+  이 문서는 앱과 같은 저장소에 <code>guide.html</code>로 포함되어 있습니다.
+</footer>
+
+</main>
+</div>
+</body>
+</html>

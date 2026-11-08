@@ -714,6 +714,7 @@ function renderRef(){
         <button class="btn ghost sm" id="impBtn">가져오기</button>
         <button class="btn ghost sm" id="printBtn">인쇄 · PDF</button>
         <button class="btn ghost sm" id="resetBtn">전체 초기화</button>
+        <a class="btn ghost sm" href="guide.html" target="_blank" rel="noopener" style="text-decoration:none;display:inline-flex;align-items:center">사용 가이드</a>
       </div>
       <input type="file" id="impFile" accept="application/json" hidden>
     </div>`;
