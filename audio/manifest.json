@@ -1,0 +1,77 @@
+{
+  "c01": {
+    "file": "audio/c01.mp3",
+    "seconds": 121.4,
+    "bytes": 1942717
+  },
+  "c02": {
+    "file": "audio/c02.mp3",
+    "seconds": 136.5,
+    "bytes": 2184715
+  },
+  "c03": {
+    "file": "audio/c03.mp3",
+    "seconds": 113.9,
+    "bytes": 1823598
+  },
+  "c04": {
+    "file": "audio/c04.mp3",
+    "seconds": 101.7,
+    "bytes": 1627994
+  },
+  "c05": {
+    "file": "audio/c05.mp3",
+    "seconds": 114.1,
+    "bytes": 1826524
+  },
+  "c06": {
+    "file": "audio/c06.mp3",
+    "seconds": 100.3,
+    "bytes": 1605006
+  },
+  "c07": {
+    "file": "audio/c07.mp3",
+    "seconds": 108.1,
+    "bytes": 1730394
+  },
+  "c08": {
+    "file": "audio/c08.mp3",
+    "seconds": 91.4,
+    "bytes": 1462900
+  },
+  "c09": {
+    "file": "audio/c09.mp3",
+    "seconds": 82.8,
+    "bytes": 1325809
+  },
+  "c10": {
+    "file": "audio/c10.mp3",
+    "seconds": 98.3,
+    "bytes": 1572823
+  },
+  "c11": {
+    "file": "audio/c11.mp3",
+    "seconds": 89.7,
+    "bytes": 1436150
+  },
+  "c12": {
+    "file": "audio/c12.mp3",
+    "seconds": 106.5,
+    "bytes": 1704898
+  },
+  "c13": {
+    "file": "audio/c13.mp3",
+    "seconds": 83.8,
+    "bytes": 1341274
+  },
+  "c14": {
+    "file": "audio/c14.mp3",
+    "seconds": 83.5,
+    "bytes": 1336258
+  },
+  "c15": {
+    "file": "audio/c15.mp3",
+    "seconds": 105.0,
+    "bytes": 1680238
+  }
+}

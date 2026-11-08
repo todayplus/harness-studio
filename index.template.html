@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Harness Studio — AI 에이전트 하네스 학습·설계</title>
+<meta name="description" content="AI 에이전트 하네스를 배우고, 조립하고, 진단하는 오프라인 학습 앱. 15개 챕터 · 퀴즈 · 플래시카드 · 시나리오 랩 · 청사진 생성.">
+<meta name="theme-color" content="#EDEAE1">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="assets/icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Harness Studio">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>/*INJECT_CSS*/</style>
+</head>
+<body data-view="learn">
+<div class="app">
+<header class="topbar">
+  <a class="brand" href="#" onclick="return false">
+    <span class="brand-mark" aria-hidden="true"></span>
+    <span>
+      <span class="brand-name">Harness Studio</span>
+      <span class="brand-sub">에이전트 하네스 학습 · 설계</span>
+    </span>
+  </a>
+  <nav class="modes" role="tablist" aria-label="보기 선택">
+    <button class="mode-btn" role="tab" aria-selected="true" data-view="learn">Learn</button>
+    <button class="mode-btn" role="tab" aria-selected="false" data-view="practice">Practice</button>
+    <button class="mode-btn" role="tab" aria-selected="false" data-view="build">Build</button>
+    <button class="mode-btn" role="tab" aria-selected="false" data-view="diagnose">Diagnose</button>
+    <button class="mode-btn" role="tab" aria-selected="false" data-view="reference">Reference</button>
+  </nav>
+  <span class="top-spacer"></span>
+  <span class="offline-pill" id="offlinePill">offline</span>
+  <div class="searchbox">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M16.5 16.5L21 21"></path></svg>
+    <input id="search" type="search" placeholder="챕터 · 개념 검색  (⌘K)" autocomplete="off" aria-label="검색">
+  </div>
+  <button class="ghost-btn" id="presentBtn" aria-label="발표자 모드" title="발표자 모드 (P)">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="1"></rect><path d="M12 16v4M8 20h8"></path><path d="M9 8l4 2.5L9 13z" fill="currentColor" stroke="none"></path></svg>
+  </button>
+  <button class="install-btn" id="installBtn" title="앱으로 설치">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12M7 11l5 5 5-5M4 21h16"></path></svg>
+    <span>앱 설치</span>
+  </button>
+  <button class="ghost-btn" id="themeBtn" aria-label="테마 전환" title="테마 전환">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M18.4 5.6L17 7M7 17l-1.4 1.4"></path><circle cx="12" cy="12" r="4"></circle></svg>
+  </button>
+</header>
+
+<div class="shell">
+  <aside class="rail-left" aria-label="커리큘럼">
+    <div class="rail-head"><span>Curriculum</span><b id="railCount">0 / 15</b></div>
+    <div id="navList"></div>
+    <div class="rail-head" style="padding-top:16px"><span>Streak</span><span class="streak" id="streakBox"><b>1</b>일 연속</span></div>
+  </aside>
+
+  <main class="main" id="main">
+    <!-- ============ LEARN ============ -->
+    <section class="view active" id="view-learn" role="tabpanel" aria-label="학습">
+      <div id="article"></div>
+    </section>
+
+    <!-- ============ PRACTICE ============ -->
+    <section class="view" id="view-practice" role="tabpanel" aria-label="연습">
+      <div class="b-head">
+        <div class="eyebrow"><span class="sep"></span>Practice</div>
+        <h1>읽은 것을 꺼내 쓰는 연습</h1>
+        <p class="lede">카드로 개념을 고정하고, 시나리오로 판단을 훈련합니다. 둘 다 기록이 저장되어 이어서 진행할 수 있습니다.</p>
+      </div>
+      <div class="practice-switch" id="practiceSwitch" role="tablist">
+        <button data-tab="cards" aria-selected="true">플래시카드</button>
+        <button data-tab="scn" aria-selected="false">시나리오 랩</button>
+      </div>
+      <div id="presentPane" style="margin-bottom:30px"></div>
+      <div id="cardsPane"></div>
+      <div id="scnPane" style="display:none"></div>
+    </section>
+
+    <!-- ============ BUILD ============ -->
+    <section class="view" id="view-build" role="tabpanel" aria-label="하네스 빌더">
+      <div class="b-head">
+        <div class="eyebrow"><span class="sep"></span>Harness Builder</div>
+        <h1>당신의 조직에 맞는<br>하네스 청사진을 조립합니다</h1>
+        <p class="lede">네 가지 질문에 답하면 <b>조직 공통 · 프로젝트 · 개인</b> 3계층 하네스와 실제 파일 구조가 만들어집니다. 아래에서 시작 파일까지 바로 내려받으세요.</p>
+      </div>
+
+      <div class="b-grid">
+        <div>
+          <div class="q-step" data-q="size">
+            <div class="q-label"><b>Q1</b><span>하네스를 쓰는 사람은 몇 명인가요?</span></div>
+            <div class="opts">
+              <button class="opt" data-val="solo" aria-pressed="true">나 혼자</button>
+              <button class="opt" data-val="team" aria-pressed="false">5–20명 팀</button>
+              <button class="opt" data-val="org" aria-pressed="false">20–100명 조직</button>
+              <button class="opt" data-val="enterprise" aria-pressed="false">100명 이상</button>
+            </div>
+          </div>
+          <div class="q-step" data-q="auto">
+            <div class="q-label"><b>Q2</b><span>에이전트는 어디까지 스스로 실행하나요?</span></div>
+            <div class="opts">
+              <button class="opt" data-val="chat" aria-pressed="true">대화형만</button>
+              <button class="opt" data-val="pr" aria-pressed="false">PR · 이슈 자동화</button>
+              <button class="opt" data-val="ci" aria-pressed="false">무인 CI 실행</button>
+            </div>
+          </div>
+          <div class="q-step" data-q="risk">
+            <div class="q-label"><b>Q3</b><span>보안·규제 민감도는?</span></div>
+            <div class="opts">
+              <button class="opt" data-val="low" aria-pressed="true">낮음</button>
+              <button class="opt" data-val="mid" aria-pressed="false">중간</button>
+              <button class="opt" data-val="high" aria-pressed="false">높음 (금융·의료·공공)</button>
+            </div>
+          </div>
+          <div class="q-step" data-q="asset">
+            <div class="q-label"><b>Q4</b><span>지금 저장소에 이미 있는 것은?</span></div>
+            <div class="opts">
+              <button class="opt" data-val="none" aria-pressed="true">아무것도 없음</button>
+              <button class="opt" data-val="md" aria-pressed="false">CLAUDE.md 한 장</button>
+              <button class="opt" data-val="skill" aria-pressed="false">스킬 · 서브에이전트까지</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="stack-zone">
+          <div class="stack-cap"><span>Layer stack</span><span id="stackLevel">L1 · 개인</span></div>
+          <div class="stack">
+            <div class="slab on" data-layer="org">
+              <div class="s-k">Layer 03 · Organization</div>
+              <div class="s-t">조직 공통 하네스</div>
+              <div class="s-chips" id="chips-org"></div>
+              <span class="rails"></span>
+            </div>
+            <div class="slab on" data-layer="project">
+              <div class="s-k">Layer 02 · Project</div>
+              <div class="s-t">프로젝트 하네스</div>
+              <div class="s-chips" id="chips-project"></div>
+              <span class="rails"></span>
+            </div>
+            <div class="slab on" data-layer="personal">
+              <div class="s-k">Layer 01 · Personal</div>
+              <div class="s-t">개인 하네스</div>
+              <div class="s-chips" id="chips-personal"></div>
+              <span class="rails"></span>
+            </div>
+          </div>
+          <div class="stack-meta" id="stackMeta"></div>
+        </div>
+      </div>
+
+      <div class="out-card">
+        <div class="out-head">
+          <span class="t">생성된 하네스 개요 — harness-blueprint.md</span>
+          <span style="display:flex;gap:6px">
+            <button class="btn ghost sm" id="copyBtn">복사</button>
+            <button class="btn sm" id="dlBtn">.md 다운로드</button>
+          </span>
+        </div>
+        <div class="out-body">
+          <pre class="tree" id="tree"></pre>
+          <div class="out-next">
+            <div class="on-k">다음 할 일</div>
+            <ol id="outNext"></ol>
+          </div>
+        </div>
+      </div>
+
+      <div class="subhead" style="margin-top:44px">시작 파일 생성 <span id="genCount" style="text-transform:none;letter-spacing:0;color:var(--accent-ink);font-family:var(--mono);font-size:10px"></span></div>
+      <div class="gen-grid">
+        <div>
+          <div class="gen-list" id="genList"></div>
+          <div class="gen-actions">
+            <button class="btn sm" id="zipBtn">선택 항목 ZIP</button>
+            <button class="btn ghost sm" id="genCopy">이 파일 복사</button>
+          </div>
+          <p class="hint" style="margin-top:12px;line-height:1.7">파일을 체크하면 미리보기가 바뀝니다. ZIP에는 청사진 마크다운도 함께 들어갑니다.</p>
+        </div>
+        <div class="gen-preview">
+          <div class="gen-head"><span class="fname" id="genFile"></span><span class="hint">읽기 전용 미리보기</span></div>
+          <pre class="gen-code" id="genCode"></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ DIAGNOSE ============ -->
+    <section class="view" id="view-diagnose" role="tabpanel" aria-label="성숙도 진단">
+      <div class="b-head">
+        <div class="eyebrow"><span class="sep"></span>Maturity Check</div>
+        <h1>내 하네스는 몇 단계일까</h1>
+        <p class="lede">열 문항으로 현재 위치를 확인합니다. 높은 점수보다 <b>다음에 무엇을 올려야 하는지</b>가 목적입니다.</p>
+      </div>
+      <div class="diag-top">
+        <div>
+          <div class="score"><span id="score">0</span><small> / 20</small></div>
+          <div class="level" id="level">L0 · 대화형 사용</div>
+          <div class="meter"><i id="meterFill"></i></div>
+        </div>
+        <div class="rr-note" id="diagSummary">아직 진단 전입니다. 각 항목을 0–2로 표시하세요.</div>
+      </div>
+      <div class="diag-list" id="diagList"></div>
+      <div class="diag-out">
+        <h4>추천 다음 단계</h4>
+        <ul id="diagNext"><li>문항을 표시하면 여기에 우선순위가 나타납니다.</li></ul>
+      </div>
+    </section>
+
+    <!-- ============ REFERENCE ============ -->
+    <section class="view" id="view-reference" role="tabpanel" aria-label="참고자료">
+      <div class="b-head">
+        <div class="eyebrow"><span class="sep"></span>Appendix</div>
+        <h1>실패 사례와 치트시트</h1>
+        <p class="lede">개념을 다 읽은 뒤에도 계속 꺼내 보는 페이지입니다. 도입 전 점검과 워크숍 진행에 그대로 쓸 수 있습니다.</p>
+      </div>
+      <div id="refBody"></div>
+    </section>
+  </main>
+
+  <aside class="rail-right" aria-label="모듈 정보">
+    <div class="rr-block">
+      <div class="rr-k">Reading progress</div>
+      <div class="ring-wrap">
+        <svg class="ring" viewBox="0 0 64 64" width="64" height="64" aria-hidden="true">
+          <circle class="bg" cx="32" cy="32" r="28"></circle>
+          <circle class="fg" cx="32" cy="32" r="28" stroke-dasharray="175.9" stroke-dashoffset="175.9" id="ringFg"></circle>
+        </svg>
+        <div>
+          <div class="ring-txt" id="ringPct">0%</div>
+          <div class="ring-sub" id="ringSub">0 / 15 챕터</div>
+        </div>
+      </div>
+    </div>
+    <div class="rr-block">
+      <div class="rr-k">이 챕터의 산출물</div>
+      <div class="artifacts" id="artifacts"></div>
+    </div>
+    <div class="rr-block">
+      <div class="rr-k">메모</div>
+      <p class="rr-note" id="railNote">진행률·퀴즈·카드 기록은 이 기기에 저장됩니다.</p>
+    </div>
+    <div class="rr-block">
+      <div class="rr-k">단축키</div>
+      <p class="rr-note"><strong>⌘K / Ctrl+K</strong> 검색 · <strong>← →</strong> 챕터 이동 · <strong>Space</strong> 카드 뒤집기</p>
+    </div>
+  </aside>
+</div>
+
+<nav class="mobile-nav" aria-label="모바일 보기 선택">
+  <button data-view="learn" aria-selected="true">Learn</button>
+  <button data-view="practice" aria-selected="false">Practice</button>
+  <button data-view="build" aria-selected="false">Build</button>
+  <button data-view="diagnose" aria-selected="false">Diagnose</button>
+  <button data-view="reference" aria-selected="false">Ref</button>
+</nav>
+</div>
+
+<div class="palette-back" id="paletteBack" role="dialog" aria-modal="true" aria-label="검색 팔레트">
+  <div class="palette">
+    <input id="paletteInput" type="text" placeholder="챕터 · 보기 · 동작 검색…" autocomplete="off" aria-label="팔레트 검색">
+    <div class="palette-list" id="paletteList"></div>
+  </div>
+</div>
+<div class="stage" id="stage" role="dialog" aria-modal="true" aria-label="발표자 모드">
+  <div class="stage-top">
+    <span class="stage-brand">Harness Studio</span>
+    <span class="stage-deck" id="stageDeck"></span>
+    <span class="stage-spacer"></span>
+    <span class="stage-clock" id="stageClock">00:00</span>
+    <button class="stage-ctrl" id="stagePause" title="일시정지 (P)" aria-label="일시정지">
+      <svg viewBox="0 0 24 24"><path d="M9 5v14M15 5v14"></path></svg></button>
+    <button class="stage-ctrl" id="stageReset" title="타이머 초기화" aria-label="타이머 초기화">
+      <svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7"></path><path d="M3 4v5h5"></path></svg></button>
+    <button class="stage-ctrl" id="stageNotes" title="발표자 노트 (N)" aria-label="노트">
+      <svg viewBox="0 0 24 24"><path d="M5 4h11l3 3v13H5z"></path><path d="M8 9h8M8 13h8M8 17h5"></path></svg></button>
+    <button class="stage-ctrl" id="stageFull" title="전체화면 (F)" aria-label="전체화면">
+      <svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 15v5h-5M20 9V4h-5M4 15v5h5"></path></svg></button>
+    <button class="stage-ctrl" id="exitStage" title="나가기 (Esc)" aria-label="나가기">
+      <svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"></path></svg></button>
+  </div>
+  <div class="stage-body"><div class="slide" id="slide"></div></div>
+  <div class="notes" id="notes"></div>
+  <div class="stage-foot">
+    <div class="prog" id="prog"></div>
+    <span class="stage-count" id="stageCount">1 / 1</span>
+    <div class="stage-nav">
+      <button id="prevSlide">← Prev</button>
+      <button id="nextSlide">Next →</button>
+    </div>
+  </div>
+</div>
+<div class="player" id="player" aria-label="오디오 플레이어">
+  <div class="player-bar"><i id="plBar"></i></div>
+  <div class="player-in">
+    <div class="pl-main">
+      <button class="pl-btn" id="plPrev" aria-label="이전 챕터"><svg viewBox="0 0 24 24"><path d="M6 5h2v14H6zM20 5v14L9 12z"/></svg></button>
+      <button class="pl-btn primary" id="plToggle" aria-label="재생 또는 일시정지"><svg viewBox="0 0 24 24" id="plIcon"><path d="M7 5l12 7-12 7z"/></svg></button>
+      <button class="pl-btn" id="plNext" aria-label="다음 챕터"><svg viewBox="0 0 24 24"><path d="M16 5h2v14h-2zM4 5v14l11-7z"/></svg></button>
+      <div class="pl-meta"><div class="pl-t" id="plTitle">오디오 요약</div><div class="pl-s" id="plSub">Adeline · ElevenLabs v4</div></div>
+    </div>
+    <span class="pl-time" id="plTime">0:00 / 0:00</span>
+    <div class="pl-progress"><input type="range" id="plSeek" min="0" max="1000" value="0" aria-label="재생 위치"></div>
+    <button class="pl-speed" id="plSpeed" aria-label="재생 속도">1.0×</button>
+    <button class="pl-close" id="plClose" aria-label="닫기"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+  </div>
+  <audio id="audio" preload="metadata"></audio>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>/*INJECT_DATA*/</script>
+<script>/*INJECT_APP*/</script>
+<script>
+if ('serviceWorker' in navigator && location.protocol !== 'file:') {
+  window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(()=>{}));
+}
+</script>
+</body>
+</html>
